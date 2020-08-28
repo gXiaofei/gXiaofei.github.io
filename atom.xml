@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://https://gXiaofei.github.io</id>
+    <id>https://gXiaofei.github.io</id>
     <title>gXiaofei</title>
-    <updated>2020-08-28T10:14:43.208Z</updated>
+    <updated>2020-08-28T10:26:44.867Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://https://gXiaofei.github.io"/>
-    <link rel="self" href="https://https://gXiaofei.github.io/atom.xml"/>
+    <link rel="alternate" href="https://gXiaofei.github.io"/>
+    <link rel="self" href="https://gXiaofei.github.io/atom.xml"/>
     <subtitle>前端向前</subtitle>
-    <logo>https://https://gXiaofei.github.io/images/avatar.png</logo>
-    <icon>https://https://gXiaofei.github.io/favicon.ico</icon>
+    <logo>https://gXiaofei.github.io/images/avatar.png</logo>
+    <icon>https://gXiaofei.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, gXiaofei</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://https://gXiaofei.github.io/post/hello-gridea/</id>
-        <link href="https://https://gXiaofei.github.io/post/hello-gridea/">
+        <id>https://gXiaofei.github.io/post/hello-gridea/</id>
+        <link href="https://gXiaofei.github.io/post/hello-gridea/">
         </link>
         <updated>2018-12-11T16:00:00.000Z</updated>
         <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
