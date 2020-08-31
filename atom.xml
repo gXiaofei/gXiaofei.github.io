@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://gXiaofei.github.io</id>
     <title>gXiaofei</title>
-    <updated>2020-08-31T14:54:20.212Z</updated>
+    <updated>2020-08-31T14:58:57.198Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://gXiaofei.github.io"/>
     <link rel="self" href="https://gXiaofei.github.io/atom.xml"/>
@@ -10,6 +10,306 @@
     <logo>https://gXiaofei.github.io/images/avatar.png</logo>
     <icon>https://gXiaofei.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, gXiaofei</rights>
+    <entry>
+        <title type="html"><![CDATA[webpack2]]></title>
+        <id>https://gXiaofei.github.io/post/webpack2/</id>
+        <link href="https://gXiaofei.github.io/post/webpack2/">
+        </link>
+        <updated>2020-08-31T12:55:27.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="file-loader">file-loader</h2>
+<p>处理静态资源模块<br>
+原理是把打包入口中识别出的资源模块，移动到输出目录，并且返回一个地址名称</p>
+<pre><code class="language-javascript">yarn add file-loader -D
+
+module: {
+    rules: [
+        test: /\.(png|jpe?g|gif)/,
+        // use 使用一个loader可以用对象，字符串，两个loader需要用数组
+        use: {
+            loader: 'file-loader',
+            // options额外的配置 ，比如资源名称
+            options: {
+                // placeholder 占位符  [name] 老资源模块的名称
+                // [ext] 老资源模块的后缀
+                // [hash]
+                name: '[name]_[hash:6].[ext]',
+                // 打包后存放的位置
+                outputPath: 'images/'
+            }
+        }
+    ]
+}
+
+</code></pre>
+<p><strong>处理字体</strong></p>
+<pre><code class="language-javascript"> 
+//css @font-face {
+font-family: &quot;webfont&quot;;
+font-display: swap;
+src: url(&quot;webfont.woff2&quot;) format(&quot;woff2&quot;);
+}
+body {
+background: blue;
+font-family: &quot;webfont&quot; !important;
+}
+//webpack.config.js {
+test: /\.(eot|ttf|woff|woff2|svg)$/,
+use: &quot;file-loader&quot; }
+</code></pre>
+<h2 id="url-loader">url-loader</h2>
+<p>file-loader 加强版本<br>
+url-loader内部使⽤用了了file-loader,所以可以处理理file-loader所有 的事情，但是遇到jpg格式的模块，会把该图⽚片转换成base64格 式字符串串，并打包到js⾥里里。对⼩小体积的图⽚片⽐比较合适，⼤大图⽚不 合适。</p>
+<pre><code class="language-javascript">yarn add url-loader -D
+
+module: {
+    rules: [
+        test: /\.(png|jpe?g|gif)/,
+        use: {
+            loader: 'url-loader',
+            options: {
+                name: &quot;[name]_[hash].[ext]&quot;, 
+                outputPath: &quot;images/&quot;, 
+                //小于2048，才转换成base64  单位 字节
+                // 太大没必要转 ，转出来的字符串都很大 
+                limit: 2048
+            }
+        }
+    ]
+}
+</code></pre>
+<h2 id="less-less-loader">less less-loader</h2>
+<p>利用less-loader 把less转换成css</p>
+<pre><code class="language-javascript">yarn less less-loader -D
+{
+    test: /\.less/,
+    use: ['sytle-loader', 'css-loader', 'less-loader']
+}
+</code></pre>
+<h2 id="postcss-loader">postcss-loader</h2>
+<p>给css自动添加前缀， 一般处理css3样式，做兼容<br>
+https://caniuse.com/</p>
+<blockquote>
+<p>yarn add postcss-loader autoprefixer -D</p>
+</blockquote>
+<p>webapck.config.js</p>
+<pre><code class="language-javascript">{
+    test: /\.css/,
+    // postcss-loader 要在css-loader 之前
+    use: ['style-loader', 'css-loader', 'postcss-loader']
+}
+</code></pre>
+<p>新建postcss.config.js</p>
+<pre><code class="language-javascript">// 给css添加前缀 webkit .. 
+const antoprefixer = require('autoprefixer');
+
+module.exports = {
+    plugins: [
+        // postcss 利用autoprefixer 添加前缀标准
+        // last 2 versions 浏览器的最近两个版本
+        // &gt;1% 全球浏览器市场份额 &gt;1%的浏览器
+        autoprefixer({
+            overrideBrowserslist: ['last 2 versions', '&gt;1%']
+        })
+    ]
+}
+</code></pre>
+<h2 id="mini-css-extract-plugin">mini-css-extract-plugin</h2>
+<p>提取css<br>
+建议在开发环境不开启，对热更新模块不太友好</p>
+<pre><code class="language-javascript">const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const devMode = process.NODE_ENV === 'development';
+
+modules: [
+    {
+        test: /\.(c|le)ss$/,
+        use: [
+            // 开发环境不开启  替换style-loader 使用MiniCssExtractPlugin.loader
+            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+            {
+                loader: 'css-loader',
+                options: {
+                    // 开启 css modules 默认不开启
+                    modules: true,
+                }
+            },
+            // postcss 要在css-loader之前 一般处理css3 做浏览器兼容
+            'postcss-less',
+            'less-loader'
+        ]
+    }
+],
+plugins: [
+    // 记得有个 plugin要写
+    new MiniCssExtractPlugin({
+        filename: devMode ? &quot;css/[name].css&quot; : &quot;css/[name].[hash:6].css&quot;,
+    })
+]
+</code></pre>
+<h2 id="sourcemap">sourceMap</h2>
+<p>源代码与打包后的代码的映射关系，通过sourceMap定位到源代码<br>
+在dev模式中，默认开启，关闭的话， 可以在配置文件里  <code>devtool: 'none'</code></p>
+<p>eval: 速度最快，使用eval包裹模块代码<br>
+source-map: 产生.map文件<br>
+cheap: 较快，不包含列信息 报错位置的列位置<br>
+module: 第三方模块，包含loader的sourcemap（比如jsx to js， babel的sourcemap）<br>
+inline: 将.map 作为DataURL嵌入js中，不单独生成.map文件</p>
+<p>推荐设置 生产环境不建议开启</p>
+<blockquote>
+<p>devtool: devMode ? &quot;cheap-module-eval-source-map&quot; : &quot;none&quot;</p>
+</blockquote>
+<h2 id="webpack-dev-server">webpack-dev-server</h2>
+<p>提升开发效率的利器<br>
+每次改完代码都需要重新打包，打开浏览器，刷新一次，很麻烦</p>
+<blockquote>
+<p>yarn add webpack-dev-server -D</p>
+</blockquote>
+<p>修改下package.json</p>
+<pre><code class="language-javascript">&quot;scripts&quot;: {
+    &quot;server&quot;: &quot;webpack-dev-server&quot;
+}
+</code></pre>
+<p>webpack.config.js</p>
+<pre><code class="language-javascript">// 有个devServer 字段可以配置
+devServer: {
+    contentBase: './dist',
+    open: true,
+    port: 8081
+}
+</code></pre>
+<p>启动</p>
+<blockquote>
+<p>npm run dev</p>
+</blockquote>
+<p>启动服务后，会发现dist目录下的文件没有了，这是因为devServer把打包后的模块不会放在dist目录下，而是放在内存中，从而提升速度</p>
+<p>mock本地数据， 解决跨域</p>
+<p>在webpack.config.js devServer 中 配置proxy</p>
+<pre><code class="language-javascript">devServer: {
+    contentBase: './dist',
+    open: true,
+    port: 8081,
+    proxy: {
+        // api 的请求代理到9092
+        '/api': {
+            target: 'http://localhost:9092'
+        }
+    }
+}
+
+// 协议 域名 端口 不一致 都会产生跨域
+
+// 请求
+// 这样写请求没代理会产生跨域问题  端口号不一样
+axios.get('http://localhost:9092/api/info').then(res =&gt; {
+    console.log(res)
+})
+
+// 写了proxy代理后修改
+axios.get('/api/info').then(res =&gt; {
+    console.log(res)
+})
+</code></pre>
+<p>在devServer中存在 before after 两个钩子函数</p>
+<pre><code class="language-javascript">devServer: {
+        // 建议使用绝对路径。
+        contentBase: path.resolve(__dirname, &quot;./dist&quot;),
+        port: 8080,
+        open: true,
+        // 代理
+        proxy: {
+            &quot;/api&quot;: {
+                target: &quot;http://localhost:9092&quot;,
+            },
+        },
+        // mock server 集成了 express， 可以做本地的mock请求
+        before(app, server) {
+            app.get(&quot;/api/info&quot;, (req, res) =&gt; {
+                res.json({
+                    hello: &quot;express3&quot;,
+                });
+            });
+        },
+    }
+</code></pre>
+<h2 id="hot-module-replacement-hmr-热模块替换">Hot Module Replacement (HMR: 热模块替换)</h2>
+<ul>
+<li>不支持抽离出css 使用style-loader来处理css</li>
+</ul>
+<p>启动hmr</p>
+<pre><code class="language-javascript">// webpack.config.js
+
+devServer: {
+     contentBase: './dist',
+    open: true,
+    port: 8081,
+    proxy: {
+        // api 的请求代理到9092
+        '/api': {
+            target: 'http://localhost:9092'
+        }
+    },
+    hot: true, // 开启热替换
+    // 即便HMR不生效，浏览器也不自动刷新，就开启hotOnly
+    hotOnly: true
+}
+</code></pre>
+<p>在配置头引入 webpack</p>
+<pre><code class="language-javascript">const webpack = require('webpack');
+</code></pre>
+<p>在plugins配置处添加：</p>
+<pre><code class="language-javascript">plugins: [
+    new webpack.HotModuleReplacementPlugin()
+]
+</code></pre>
+<p><em>注意： 启动HMR后，css抽离不会生效，还有不支持contenthash，chunkhash</em></p>
+<p>上面的配置只能做到css 样式上的热替换</p>
+<p><strong>处理js模块HMR</strong></p>
+<p>需要使用<code>module.hot.accep</code>来观察模块更新，从而更新</p>
+<p>案例：</p>
+<pre><code class="language-javascript">
+// counter.js
+function counter() {
+    var div = document.getElement('div');
+    div.setAttribute(&quot;id&quot;, &quot;counter&quot;); div.innerHTML = 1;
+    div.onclick = function() {
+    div.innerHTML = parseInt(div.innerHTML, 10) + 1; };
+    document.body.appendChild(div);
+}
+
+export default counter;
+
+// number.js
+function number() {
+    var div = document.createElement(&quot;div&quot;); 
+    div.setAttribute(&quot;id&quot;, &quot;number&quot;); 
+    div.innerHTML = 13000; 
+    document.body.appendChild(div);
+}
+export default number;
+
+// index.js
+import counter from './counter';
+import number from './number';
+
+counter();
+number();
+
+// 这里做js的热替换
+if(module.hot) {
+    // 监听 number 文件
+    module.hot.accept('./number', function (){
+        // 做出相应的处理
+        // 一般框架都会有自己的热替换处理 比如react 有 react hot loader 
+        // vue vue-loader 等等
+        document.body.removeChild(document.getElementById(&quot; number&quot;));
+        number();
+    })
+}
+</code></pre>
+<h2 id="babel">babel</h2>
+<p>...</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[webpack]]></title>
         <id>https://gXiaofei.github.io/post/webpack/</id>
@@ -202,38 +502,6 @@ chunkhash 根据不同入口entry进行依赖解析， 构成对应的chunk，�
 contenthash 一般用于抽离出的css文件 跟内容绑定，文件内容不变，hash不变</p>
 <p>id</p>
 <p>使用 自定义配置文件： 比如webpackconfig.js ，可以通过 --config webpackconfig.js 指定webpack使用哪个配置文件来执行构建</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://gXiaofei.github.io/post/hello-gridea/</id>
-        <link href="https://gXiaofei.github.io/post/hello-gridea/">
-        </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-<!-- more -->
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="https://gridea.dev/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<h2 id="特性">特性👇</h2>
-<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
-<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
-<p>🏷️  你可以对文章进行标签分组</p>
-<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
-<p>💻  你可以在 <strong>Windows</strong>，<strong>MacOS</strong> 或 <strong>Linux</strong> 设备上使用此客户端</p>
-<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
-<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
-<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
-<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
-<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
-<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前 🏃</p>
-<p>未来，它一定会成为你离不开的伙伴</p>
-<p>尽情发挥你的才华吧！</p>
-<p>😘 Enjoy~</p>
 ]]></content>
     </entry>
 </feed>

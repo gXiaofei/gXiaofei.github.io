@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>webpack2 | gXiaofei</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://gXiaofei.github.io/favicon.ico?v=1598885925081">
+<link rel="stylesheet" href="https://gXiaofei.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="file-loader
+处理静态资源模块
+原理是把打包入口中识别出的资源模块，移动到输出目录，并且返回一个地址名称
+yarn add file-loader -D
+
+module: {
+    rules: [
+        test: ..." />
+    <meta name="keywords" content="webpack" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://gXiaofei.github.io">
+        <img src="https://gXiaofei.github.io/images/avatar.png?v=1598885925081" class="site-logo">
+        <h1 class="site-title">gXiaofei</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      前端向前
+    </div>
+    <div class="site-footer">
+      底部需要什么信息 | <a class="rss" href="https://gXiaofei.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">webpack2</h2>
+            <div class="post-date">2020-08-31</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="file-loader">file-loader</h2>
+<p>处理静态资源模块<br>
+原理是把打包入口中识别出的资源模块，移动到输出目录，并且返回一个地址名称</p>
+<pre><code class="language-javascript">yarn add file-loader -D
+
+module: {
+    rules: [
+        test: /\.(png|jpe?g|gif)/,
+        // use 使用一个loader可以用对象，字符串，两个loader需要用数组
+        use: {
+            loader: 'file-loader',
+            // options额外的配置 ，比如资源名称
+            options: {
+                // placeholder 占位符  [name] 老资源模块的名称
+                // [ext] 老资源模块的后缀
+                // [hash]
+                name: '[name]_[hash:6].[ext]',
+                // 打包后存放的位置
+                outputPath: 'images/'
+            }
+        }
+    ]
+}
+
+</code></pre>
+<p><strong>处理字体</strong></p>
+<pre><code class="language-javascript"> 
+//css @font-face {
+font-family: &quot;webfont&quot;;
+font-display: swap;
+src: url(&quot;webfont.woff2&quot;) format(&quot;woff2&quot;);
+}
+body {
+background: blue;
+font-family: &quot;webfont&quot; !important;
+}
+//webpack.config.js {
+test: /\.(eot|ttf|woff|woff2|svg)$/,
+use: &quot;file-loader&quot; }
+</code></pre>
+<h2 id="url-loader">url-loader</h2>
+<p>file-loader 加强版本<br>
+url-loader内部使⽤用了了file-loader,所以可以处理理file-loader所有 的事情，但是遇到jpg格式的模块，会把该图⽚片转换成base64格 式字符串串，并打包到js⾥里里。对⼩小体积的图⽚片⽐比较合适，⼤大图⽚不 合适。</p>
+<pre><code class="language-javascript">yarn add url-loader -D
+
+module: {
+    rules: [
+        test: /\.(png|jpe?g|gif)/,
+        use: {
+            loader: 'url-loader',
+            options: {
+                name: &quot;[name]_[hash].[ext]&quot;, 
+                outputPath: &quot;images/&quot;, 
+                //小于2048，才转换成base64  单位 字节
+                // 太大没必要转 ，转出来的字符串都很大 
+                limit: 2048
+            }
+        }
+    ]
+}
+</code></pre>
+<h2 id="less-less-loader">less less-loader</h2>
+<p>利用less-loader 把less转换成css</p>
+<pre><code class="language-javascript">yarn less less-loader -D
+{
+    test: /\.less/,
+    use: ['sytle-loader', 'css-loader', 'less-loader']
+}
+</code></pre>
+<h2 id="postcss-loader">postcss-loader</h2>
+<p>给css自动添加前缀， 一般处理css3样式，做兼容<br>
+https://caniuse.com/</p>
+<blockquote>
+<p>yarn add postcss-loader autoprefixer -D</p>
+</blockquote>
+<p>webapck.config.js</p>
+<pre><code class="language-javascript">{
+    test: /\.css/,
+    // postcss-loader 要在css-loader 之前
+    use: ['style-loader', 'css-loader', 'postcss-loader']
+}
+</code></pre>
+<p>新建postcss.config.js</p>
+<pre><code class="language-javascript">// 给css添加前缀 webkit .. 
+const antoprefixer = require('autoprefixer');
+
+module.exports = {
+    plugins: [
+        // postcss 利用autoprefixer 添加前缀标准
+        // last 2 versions 浏览器的最近两个版本
+        // &gt;1% 全球浏览器市场份额 &gt;1%的浏览器
+        autoprefixer({
+            overrideBrowserslist: ['last 2 versions', '&gt;1%']
+        })
+    ]
+}
+</code></pre>
+<h2 id="mini-css-extract-plugin">mini-css-extract-plugin</h2>
+<p>提取css<br>
+建议在开发环境不开启，对热更新模块不太友好</p>
+<pre><code class="language-javascript">const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const devMode = process.NODE_ENV === 'development';
+
+modules: [
+    {
+        test: /\.(c|le)ss$/,
+        use: [
+            // 开发环境不开启  替换style-loader 使用MiniCssExtractPlugin.loader
+            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+            {
+                loader: 'css-loader',
+                options: {
+                    // 开启 css modules 默认不开启
+                    modules: true,
+                }
+            },
+            // postcss 要在css-loader之前 一般处理css3 做浏览器兼容
+            'postcss-less',
+            'less-loader'
+        ]
+    }
+],
+plugins: [
+    // 记得有个 plugin要写
+    new MiniCssExtractPlugin({
+        filename: devMode ? &quot;css/[name].css&quot; : &quot;css/[name].[hash:6].css&quot;,
+    })
+]
+</code></pre>
+<h2 id="sourcemap">sourceMap</h2>
+<p>源代码与打包后的代码的映射关系，通过sourceMap定位到源代码<br>
+在dev模式中，默认开启，关闭的话， 可以在配置文件里  <code>devtool: 'none'</code></p>
+<p>eval: 速度最快，使用eval包裹模块代码<br>
+source-map: 产生.map文件<br>
+cheap: 较快，不包含列信息 报错位置的列位置<br>
+module: 第三方模块，包含loader的sourcemap（比如jsx to js， babel的sourcemap）<br>
+inline: 将.map 作为DataURL嵌入js中，不单独生成.map文件</p>
+<p>推荐设置 生产环境不建议开启</p>
+<blockquote>
+<p>devtool: devMode ? &quot;cheap-module-eval-source-map&quot; : &quot;none&quot;</p>
+</blockquote>
+<h2 id="webpack-dev-server">webpack-dev-server</h2>
+<p>提升开发效率的利器<br>
+每次改完代码都需要重新打包，打开浏览器，刷新一次，很麻烦</p>
+<blockquote>
+<p>yarn add webpack-dev-server -D</p>
+</blockquote>
+<p>修改下package.json</p>
+<pre><code class="language-javascript">&quot;scripts&quot;: {
+    &quot;server&quot;: &quot;webpack-dev-server&quot;
+}
+</code></pre>
+<p>webpack.config.js</p>
+<pre><code class="language-javascript">// 有个devServer 字段可以配置
+devServer: {
+    contentBase: './dist',
+    open: true,
+    port: 8081
+}
+</code></pre>
+<p>启动</p>
+<blockquote>
+<p>npm run dev</p>
+</blockquote>
+<p>启动服务后，会发现dist目录下的文件没有了，这是因为devServer把打包后的模块不会放在dist目录下，而是放在内存中，从而提升速度</p>
+<p>mock本地数据， 解决跨域</p>
+<p>在webpack.config.js devServer 中 配置proxy</p>
+<pre><code class="language-javascript">devServer: {
+    contentBase: './dist',
+    open: true,
+    port: 8081,
+    proxy: {
+        // api 的请求代理到9092
+        '/api': {
+            target: 'http://localhost:9092'
+        }
+    }
+}
+
+// 协议 域名 端口 不一致 都会产生跨域
+
+// 请求
+// 这样写请求没代理会产生跨域问题  端口号不一样
+axios.get('http://localhost:9092/api/info').then(res =&gt; {
+    console.log(res)
+})
+
+// 写了proxy代理后修改
+axios.get('/api/info').then(res =&gt; {
+    console.log(res)
+})
+</code></pre>
+<p>在devServer中存在 before after 两个钩子函数</p>
+<pre><code class="language-javascript">devServer: {
+        // 建议使用绝对路径。
+        contentBase: path.resolve(__dirname, &quot;./dist&quot;),
+        port: 8080,
+        open: true,
+        // 代理
+        proxy: {
+            &quot;/api&quot;: {
+                target: &quot;http://localhost:9092&quot;,
+            },
+        },
+        // mock server 集成了 express， 可以做本地的mock请求
+        before(app, server) {
+            app.get(&quot;/api/info&quot;, (req, res) =&gt; {
+                res.json({
+                    hello: &quot;express3&quot;,
+                });
+            });
+        },
+    }
+</code></pre>
+<h2 id="hot-module-replacement-hmr-热模块替换">Hot Module Replacement (HMR: 热模块替换)</h2>
+<ul>
+<li>不支持抽离出css 使用style-loader来处理css</li>
+</ul>
+<p>启动hmr</p>
+<pre><code class="language-javascript">// webpack.config.js
+
+devServer: {
+     contentBase: './dist',
+    open: true,
+    port: 8081,
+    proxy: {
+        // api 的请求代理到9092
+        '/api': {
+            target: 'http://localhost:9092'
+        }
+    },
+    hot: true, // 开启热替换
+    // 即便HMR不生效，浏览器也不自动刷新，就开启hotOnly
+    hotOnly: true
+}
+</code></pre>
+<p>在配置头引入 webpack</p>
+<pre><code class="language-javascript">const webpack = require('webpack');
+</code></pre>
+<p>在plugins配置处添加：</p>
+<pre><code class="language-javascript">plugins: [
+    new webpack.HotModuleReplacementPlugin()
+]
+</code></pre>
+<p><em>注意： 启动HMR后，css抽离不会生效，还有不支持contenthash，chunkhash</em></p>
+<p>上面的配置只能做到css 样式上的热替换</p>
+<p><strong>处理js模块HMR</strong></p>
+<p>需要使用<code>module.hot.accep</code>来观察模块更新，从而更新</p>
+<p>案例：</p>
+<pre><code class="language-javascript">
+// counter.js
+function counter() {
+    var div = document.getElement('div');
+    div.setAttribute(&quot;id&quot;, &quot;counter&quot;); div.innerHTML = 1;
+    div.onclick = function() {
+    div.innerHTML = parseInt(div.innerHTML, 10) + 1; };
+    document.body.appendChild(div);
+}
+
+export default counter;
+
+// number.js
+function number() {
+    var div = document.createElement(&quot;div&quot;); 
+    div.setAttribute(&quot;id&quot;, &quot;number&quot;); 
+    div.innerHTML = 13000; 
+    document.body.appendChild(div);
+}
+export default number;
+
+// index.js
+import counter from './counter';
+import number from './number';
+
+counter();
+number();
+
+// 这里做js的热替换
+if(module.hot) {
+    // 监听 number 文件
+    module.hot.accept('./number', function (){
+        // 做出相应的处理
+        // 一般框架都会有自己的热替换处理 比如react 有 react hot loader 
+        // vue vue-loader 等等
+        document.body.removeChild(document.getElementById(&quot; number&quot;));
+        number();
+    })
+}
+</code></pre>
+<h2 id="babel">babel</h2>
+<p>...</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://gXiaofei.github.io/tag/https://webpack.js.org/" class="tag">
+                    webpack
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://gXiaofei.github.io/post/webpack/">
+                  <h3 class="post-title">
+                    webpack
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>
